@@ -46,6 +46,8 @@ gem 'sprockets-rails'
 gem 'stimulus-rails'
 # Unicode to ASCII transliteration [https://rubygems.org/gems/stringex/]
 gem 'stringex', '~> 2.8', '>= 2.8.6'
+# Use sqlite3 as the database for Active Record
+gem 'sqlite3', '~> 1.4'
 # Hotwire's SPA-like page accelerator [https://turbo.hotwired.dev]
 gem 'turbo-rails'
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -68,8 +70,6 @@ gem 'omniauth-cul', '~> 0.2.0'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
-  # Use sqlite3 as the database for Active Record
-  gem 'sqlite3', '~> 1.4'
   # Rubocul for linting
   gem 'rubocul', '~> 4.0.11'
   # gem 'rubocul', path: '../rubocul'
