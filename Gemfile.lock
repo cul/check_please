@@ -80,6 +80,8 @@ GEM
     airbrussh (1.5.1)
       sshkit (>= 1.6.1, != 1.7.0)
     ast (2.4.2)
+    aws-crt (0.2.0)
+      ffi
     aws-crt (0.2.0-aarch64-linux)
       ffi
     aws-crt (0.2.0-arm64-darwin)
@@ -242,6 +244,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2024.0305)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.6)
     minitest (5.22.3)
     mono_logger (1.1.2)
     msgpack (1.7.2)
@@ -266,6 +269,9 @@ GEM
       net-protocol
     net-ssh (7.2.1)
     nio4r (2.7.1)
+    nokogiri (1.16.3)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.16.3-aarch64-linux)
       racc (~> 1.4)
     nokogiri (1.16.3-arm64-darwin)
@@ -446,6 +452,8 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
       sprockets (>= 3.0.0)
+    sqlite3 (1.7.3)
+      mini_portile2 (~> 2.8.0)
     sqlite3 (1.7.3-aarch64-linux)
     sqlite3 (1.7.3-arm64-darwin)
     sqlite3 (1.7.3-x86_64-linux)
@@ -492,6 +500,7 @@ PLATFORMS
   aarch64-linux
   arm64-darwin-21
   arm64-darwin-22
+  ruby
   x86_64-linux
 
 DEPENDENCIES
