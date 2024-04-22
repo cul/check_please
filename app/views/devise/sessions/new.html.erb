@@ -1,0 +1,11 @@
+<h2>Log in</h2>
+
+<%= render "devise/shared/links" %>
+
+<% if Rails.env.development? %>
+  <p>
+    <strong>Development environment only:</strong>
+    <br /><br />
+    <%= link_to 'Sign in with development account', users_development_sign_in_developer_path %>
+  </p>
+<% end %>

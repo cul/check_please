@@ -1,0 +1,10 @@
+# Permissions
+
+all: &all
+  allowed_user_ids:
+    - abcdef123
+    - ghijkl456
+  allowed_user_affils:
+    - Very_Important_Users
+
+development: *all

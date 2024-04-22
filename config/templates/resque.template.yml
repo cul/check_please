@@ -1,0 +1,17 @@
+default: &default
+  workers:
+    '*' : 1
+  polling_interval: 5
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
+  workers:
+    '*' : 1
+    'high' : 3
+    'low,medium' : 1

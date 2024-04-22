@@ -1,0 +1,13 @@
+Check Please: v<%= APP_VERSION %>
+
+<% if user_signed_in? %>
+  <p>You are signed in as user: <%= current_user.uid %></p>
+  <% # The sign out route uses a DELETE method to prevent CSRF attacks. %>
+  <p>
+    <%= form_with(url: destroy_user_session_path, method: "delete") do |form| %>
+      <%= form.submit "Sign out" %>
+    <% end %>
+  </p>
+<% else %>
+  <p><%= link_to 'Sign in', user_session_path %></p>
+<% end %>

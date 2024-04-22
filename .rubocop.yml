@@ -1,0 +1,21 @@
+inherit_gem:
+  rubocul: rubocul_default.yml
+
+inherit_from: .rubocop_todo.yml
+
+AllCops:
+  TargetRubyVersion: 3.2.2
+  TargetRailsVersion: 7.1
+  DisplayCopNames: true
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'app/javascript/**/*'
+    - 'config/environments/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'lib/tasks/**/*'
+    - 'tmp/**/*'
+
+Lint/MissingCopEnableDirective:
+  Enabled: false
