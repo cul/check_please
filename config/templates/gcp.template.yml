@@ -4,7 +4,6 @@ default: &default
 development:
   <<: *default
   project_id: 'example-project'
-  preservation_bucket_name: 'example-dev-bucket'
   credentials:
     # Note: The lines below should be a line-for-line copy of what Google provides in a credentials.json key file
     type: 'fill-this-in'
@@ -22,7 +21,6 @@ development:
 test:
   <<: *default
   project_id: 'example-project'
-  preservation_bucket_name: 'example-test-bucket'
   mock_credentials: true
   credentials:
     type: 'service_account'
