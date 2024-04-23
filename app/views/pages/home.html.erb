@@ -9,5 +9,8 @@ Check Please: v<%= APP_VERSION %>
     <% end %>
   </p>
 <% else %>
-  <p><%= link_to 'Sign in', user_session_path %></p>
+  <% # For now, comment out sign in link because we're not using it. %>
+  <p><%
+    #=link_to 'Sign in', user_session_path
+  %></p>
 <% end %>
