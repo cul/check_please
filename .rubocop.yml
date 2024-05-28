@@ -19,3 +19,11 @@ AllCops:
 
 Lint/MissingCopEnableDirective:
   Enabled: false
+
+Metrics/MethodLength:
+  Exclude:
+    - lib/check_please/aws/object_fixity_verifier.rb
+
+RSpec/VerifiedDoubles:
+  Exclude:
+    - spec/check_please/aws/object_fixity_verifier_spec.rb
