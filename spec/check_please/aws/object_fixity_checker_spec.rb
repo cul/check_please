@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+# rubocop:disable RSpec/MultipleExpectations
+
 require 'rails_helper'
 
-describe CheckPlease::Aws::ObjectFixityVerifier do
+describe CheckPlease::Aws::ObjectFixityChecker do
   describe '.digester_for_checksum_algorithm' do
     {
       'sha256' => Digest::SHA256,
@@ -20,7 +22,7 @@ describe CheckPlease::Aws::ObjectFixityVerifier do
     end
   end
 
-  describe '.verify' do
+  describe '.check' do
     let(:bucket_name) { 'example-bucket' }
     let(:object_path) { 'a/b/c.txt' }
     let(:checksum_algorithm_name) { 'sha256' }
@@ -51,8 +53,20 @@ describe CheckPlease::Aws::ObjectFixityVerifier do
 
     it 'returns the expected value' do
       expect(
-        described_class.verify(
-          bucket_name, object_path, checksum_algorithm_name, print_memory_stats: print_memory_stats
+        described_class.check(
+          bucket_name, object_path, checksum_algorithm_name
+        )
+      ).to eq([expected_sha256_checksum_hexdigest, expected_content_length])
+    end
+
+    it 'invokes the on_chunk lambda when provided' do
+      on_chunk_lambda = ->(_chunk, _bytes_read, _chunk_counter) { next }
+      expect(on_chunk_lambda).to receive(:call).with(chunk1, chunk1.bytesize, 1)
+      expect(on_chunk_lambda).to receive(:call).with(chunk2, chunk1.bytesize + chunk2.bytesize, 2)
+      expect(on_chunk_lambda).to receive(:call).with(chunk3, chunk1.bytesize + chunk2.bytesize + chunk3.bytesize, 3)
+      expect(
+        described_class.check(
+          bucket_name, object_path, checksum_algorithm_name, on_chunk: on_chunk_lambda
         )
       ).to eq([expected_sha256_checksum_hexdigest, expected_content_length])
     end
@@ -62,8 +76,8 @@ describe CheckPlease::Aws::ObjectFixityVerifier do
 
       it 'raises an exception' do
         expect {
-          described_class.verify(
-            bucket_name, object_path, checksum_algorithm_name, print_memory_stats: print_memory_stats
+          described_class.check(
+            bucket_name, object_path, checksum_algorithm_name
           )
         }.to raise_error(
           CheckPlease::Exceptions::ReportedFileSizeMismatchError

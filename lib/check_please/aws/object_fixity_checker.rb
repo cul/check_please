@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CheckPlease::Aws::ObjectFixityVerifier
+module CheckPlease::Aws::ObjectFixityChecker
   def self.digester_for_checksum_algorithm!(checksum_algorithm_name)
     case checksum_algorithm_name
     when 'sha256'
@@ -16,17 +16,24 @@ module CheckPlease::Aws::ObjectFixityVerifier
     end
   end
 
-  def self.verify(bucket_name, object_path, checksum_algorithm_name, print_memory_stats: false)
+  # Checks the specified object and returns
+  # @param bucket_name [String] The name of the S3 bucket
+  # @param object_path [String] The object path in the S3 bucket
+  # @param checksum_algorithm_name [String] A checksum algorithm name.
+  #                                         Allowed values include: sha256, sha512, md5, crc32c
+  # @param on_chunk [lambda] A lambda that is called once per data chunk read, during the fixity check.
+  # @return [Array] An with two elements, the first being a hex digest of the object's bytes and the second
+  #                 being the object size in bytes.
+  def self.check(bucket_name, object_path, checksum_algorithm_name, on_chunk: nil)
     digester_for_checksum_algorithm = digester_for_checksum_algorithm!(checksum_algorithm_name)
     bytes_read = 0
-    memory_monitoring_counter = 0
+    chunk_counter = 0
 
     obj = S3_CLIENT.get_object({ bucket: bucket_name, key: object_path }) do |chunk, _headers|
       digester_for_checksum_algorithm.update(chunk)
       bytes_read += chunk.bytesize
-
-      memory_monitoring_counter += 1
-      collect_and_print_memory_stats(bytes_read) if print_memory_stats && (memory_monitoring_counter % 100).zero?
+      chunk_counter += 1
+      on_chunk&.call(chunk, bytes_read, chunk_counter)
     end
 
     # The bytes_read sum should equal the AWS-reported obj.content_length,
@@ -44,10 +51,5 @@ module CheckPlease::Aws::ObjectFixityVerifier
 
     raise CheckPlease::Exceptions::ReportedFileSizeMismatchError,
           "S3 reported an object size of #{expected_total_byte_count} bytes, but we only received #{bytes_read} bytes"
-  end
-
-  def self.collect_and_print_memory_stats(bytes_read)
-    pid, size = `ps ax -o pid,rss | grep -E "^[[:space:]]*#{$PROCESS_ID}"`.strip.split.map(&:to_i)
-    puts "Read: #{bytes_read / 1.megabyte} MB. Memory usage for pid #{pid}: #{size.to_f / 1.kilobyte} MB." # rubocop:disable Rails/Output
   end
 end

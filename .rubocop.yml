@@ -22,8 +22,8 @@ Lint/MissingCopEnableDirective:
 
 Metrics/MethodLength:
   Exclude:
-    - lib/check_please/aws/object_fixity_verifier.rb
+    - lib/check_please/aws/object_fixity_checker.rb
 
 RSpec/VerifiedDoubles:
   Exclude:
-    - spec/check_please/aws/object_fixity_verifier_spec.rb
+    - spec/check_please/aws/object_fixity_checker_spec.rb
