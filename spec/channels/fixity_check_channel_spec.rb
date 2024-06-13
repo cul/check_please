@@ -47,7 +47,8 @@ RSpec.describe FixityCheckChannel, type: :channel do
         ).and_return([checksum_hexdigest, object_size])
       end
 
-      it 'initiates a checksum calculation, which queues a background job' do
+      it  'initiates a checksum calculation, which queues a background job and '\
+          'responds with a fixity_check_complete broadcast' do
         expect(AwsCheckFixityJob).to receive(:perform_later).with(
           job_identifier, bucket_name, object_path, checksum_algorithm_name
         ).and_call_original
