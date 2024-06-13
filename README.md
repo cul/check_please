@@ -2,8 +2,10 @@
 
 DLST app for performing fixity checks on cloud storage files.
 
+## Development
 
-**First-Time Setup (for developers)**
+### First-Time Setup
+
 Clone the repository.
 `git clone git@github.com:cul/check_please.git`
 
@@ -16,8 +18,15 @@ Set up config files.
 Run database migrations.
 `bundle exec rake db:migrate`
 
-Seed the database with necessary values for operation.
-`rails db:seed`
+Start the application using `bundle exec rails server`.
+`bundle exec rails s -p 3000`
 
-Start the application using `rails server`.
-`rails s -p 3000`
+## Testing
+
+Run: `bundle exec rspec`
+
+## Deployment
+
+Run: `bundle exec cap [env] deploy`
+
+NOTE: Only the `dev` environment deploy target is fully set up at this time.
