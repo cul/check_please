@@ -1,4 +1,9 @@
 development:
   run_queued_jobs_inline: true
+  remote_request_api_key: changethis
+  action_cable_stream_prefix: '<%= "#{Rails.application.class.module_parent_name}:#{Rails.env}:" %>'
+
 test:
   run_queued_jobs_inline: true
+  remote_request_api_key: changethis
+  action_cable_stream_prefix: '<%= "#{Rails.application.class.module_parent_name}:#{Rails.env}:" %>'

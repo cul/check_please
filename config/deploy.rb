@@ -26,7 +26,8 @@ append  :linked_files,
         'config/gcp.yml',
         'config/permissions.yml',
         'config/redis.yml',
-        'config/resque.yml'
+        'config/resque.yml',
+        'config/cable.yml'
 
 # Default value for linked_dirs is []
 append  :linked_dirs,
