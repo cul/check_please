@@ -26,6 +26,8 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root 'pages#home'
 
+  post '/fixity_checks/run_fixity_check_for_s3_object', to: 'fixity_checks#run_fixity_check_for_s3_object'
+
   # Mount ActionCable Websocket route
   mount ActionCable.server => '/cable'
 end
