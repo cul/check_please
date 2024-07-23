@@ -16,6 +16,8 @@ gem 'best_type', '~> 1.0'
 gem 'bootsnap', require: false
 # Add CRC32C support to the Ruby Digest module
 gem 'digest-crc', '~> 0.6.5'
+# Client library for connecting to a websocket endpoint
+gem 'faye-websocket', '~> 0.11.3'
 # Google Cloud Storage SDK
 gem 'google-cloud-storage', '~> 1.49'
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -70,6 +72,8 @@ gem 'omniauth-cul', '~> 0.2.0'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri windows]
+  # json_spec for easier json comparison in tests
+  gem 'json_spec'
   # Rubocul for linting
   gem 'rubocul', '~> 4.0.11'
   # gem 'rubocul', path: '../rubocul'

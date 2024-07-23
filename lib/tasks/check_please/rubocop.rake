@@ -19,6 +19,7 @@ if ['development', 'test'].include?(Rails.env)
         'Layout/SpaceAroundKeyword',
         'Layout/SpaceAroundOperators',
         'Layout/SpaceBeforeBlockBraces',
+        'Layout/SpaceBeforeFirstArg',
         'Layout/SpaceInsideArrayLiteralBrackets',
         'Layout/SpaceInsideBlockBraces',
         'Layout/SpaceInsideHashLiteralBraces',
