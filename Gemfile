@@ -10,6 +10,8 @@ gem 'aws-sdk-s3', '~> 1'
 #  branch: 's3_allow_custom_multipart_part_size_during_object_upload', glob: 'gems/aws-sdk-s3/*.gemspec'
 # Additional gem enabling the AWS SDK to calculate CRC32C checksums
 gem 'aws-crt', '~> 0.2.0'
+# base64 is a default gem, and we need to lock it to version 0.1.1 to avoid conflicts with Ruby 3.2.2 during deployment
+gem 'base64', '0.1.1'
 # For file type determination
 gem 'best_type', '~> 1.0'
 # Reduces boot times through caching; required in config/boot.rb
