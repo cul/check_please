@@ -15,7 +15,6 @@ namespace :check_please do
       checksum_algorithm_name = ENV['checksum_algorithm_name']
       print_memory_stats = ENV['print_memory_stats'] == 'true'
 
-      memory_monitoring_counter = 0
       checksum, object_size = CheckPlease::Aws::ObjectFixityChecker.check(
         bucket_name,
         object_path,

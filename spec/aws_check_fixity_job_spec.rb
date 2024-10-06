@@ -75,13 +75,26 @@ describe AwsCheckFixityJob do
     let(:chunk) { 'a chunk of content' }
     let(:bytes_read) { 12_345 }
 
-    it 'broadcasts an Action Cable message at the expected interval, and touches the FixityCheck record' do
+    it 'calls run_progress_update at the expected interval' do
       progress_report_lambda = aws_check_fixity_job.progress_report_lambda(fixity_check, stream_name)
-      expect(fixity_check).to receive(:touch).exactly(10).times
-      expect(ActionCable.server).to receive(:broadcast).exactly(10).times
-      (1..1000).each do |i|
-        progress_report_lambda.call(chunk, bytes_read, i)
-      end
+      allow(aws_check_fixity_job).to receive(:run_progress_update).and_call_original
+      progress_report_lambda.call(chunk, bytes_read, 1)
+      progress_report_lambda.call(chunk, bytes_read, 2)
+      sleep AwsCheckFixityJob::PROGRESS_UPDATE_FREQUENCY
+      progress_report_lambda.call(chunk, bytes_read, 3)
+      progress_report_lambda.call(chunk, bytes_read, 4)
+      sleep AwsCheckFixityJob::PROGRESS_UPDATE_FREQUENCY
+      progress_report_lambda.call(chunk, bytes_read, 5)
+      progress_report_lambda.call(chunk, bytes_read, 6)
+      expect(aws_check_fixity_job).to have_received(:run_progress_update).exactly(2).times
+    end
+  end
+
+  describe '#run_progress_update' do
+    it 'broadcasts an Action Cable message at the expected interval, and touches the FixityCheck record' do
+      expect(fixity_check).to receive(:touch)
+      expect(ActionCable.server).to receive(:broadcast)
+      aws_check_fixity_job.run_progress_update(fixity_check, 'some-response-stream-name')
     end
   end
 

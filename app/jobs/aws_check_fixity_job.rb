@@ -3,6 +3,8 @@
 class AwsCheckFixityJob < ApplicationJob
   queue_as CheckPlease::Queues::CHECK_FIXITY
 
+  PROGRESS_UPDATE_FREQUENCY = 2.seconds
+
   def perform(fixity_check_id)
     fixity_check = FixityCheck.find(fixity_check_id)
     response_stream_name = "#{FixityCheckChannel::FIXITY_CHECK_STREAM_PREFIX}#{fixity_check.job_identifier}"
@@ -72,19 +74,25 @@ class AwsCheckFixityJob < ApplicationJob
   end
 
   def progress_report_lambda(fixity_check, response_stream_name)
-    lambda do |_chunk, _bytes_read, chunk_counter|
-      # Only provide an update once per 1000 chunks processed
-      return unless (chunk_counter % 1000).zero?
+    lambda do |_chunk, _bytes_read, _chunk_counter|
+      # We don't want to handle progress updates on every chunk, since this would be way too frequent.
+      time_since_last_update = Time.current - fixity_check.updated_at
+      return if time_since_last_update < PROGRESS_UPDATE_FREQUENCY
 
-      # Update the updated_at attribute for this FixityCheck record
-      fixity_check.touch # rubocop:disable Rails/SkipsModelValidations
-
-      # We periodically broadcast a message to indicate that the processing is still happening.
-      # This is so that a client can check whether a job has stalled.
-      ActionCable.server.broadcast(
-        response_stream_name,
-        { type: 'fixity_check_in_progress' }.to_json
-      )
+      # Provide progress updates for any processes that might be monitoring this job
+      run_progress_update(fixity_check, response_stream_name)
     end
+  end
+
+  def run_progress_update(fixity_check, response_stream_name)
+    # 1) Update the updated_at attribute for this FixityCheck record
+    fixity_check.touch # rubocop:disable Rails/SkipsModelValidations
+
+    # 2) Broadcast an ActionCable message to indicate that the processing is still happening.
+    # Websocket clients use this information to check whether a job has stalled.
+    ActionCable.server.broadcast(
+      response_stream_name,
+      { type: 'fixity_check_in_progress' }.to_json
+    )
   end
 end
