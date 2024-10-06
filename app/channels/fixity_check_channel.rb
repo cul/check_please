@@ -41,6 +41,12 @@ class FixityCheckChannel < ApplicationCable::Channel
     object_path = data['object_path']
     checksum_algorithm_name = data['checksum_algorithm_name']
 
-    AwsCheckFixityJob.perform_later(job_identifier, bucket_name, object_path, checksum_algorithm_name)
+    fixity_check = FixityCheck.create!(
+      job_identifier: job_identifier,
+      bucket_name: bucket_name,
+      object_path: object_path,
+      checksum_algorithm_name: checksum_algorithm_name
+    )
+    AwsCheckFixityJob.perform_later(fixity_check.id)
   end
 end

@@ -15,24 +15,46 @@ describe AwsCheckFixityJob do
   let(:object_size) { example_content.bytesize }
   let(:stream_name) { "#{FixityCheckChannel::FIXITY_CHECK_STREAM_PREFIX}#{job_identifier}" }
   let(:error_message) { 'oh no!' }
+  let(:fixity_check) do
+    FactoryBot.create(
+      :fixity_check,
+      job_identifier: job_identifier,
+      bucket_name: bucket_name,
+      object_path: object_path,
+      checksum_algorithm_name: checksum_algorithm_name
+    )
+  end
 
   describe '#perform' do
-    it 'works as expected' do
-      allow(CheckPlease::Aws::ObjectFixityChecker).to receive(:check).with(
-        bucket_name,
-        object_path,
-        checksum_algorithm_name,
-        on_chunk: Proc
-      ).and_return([checksum_hexdigest, object_size])
-      expect(aws_check_fixity_job).to receive(:broadcast_fixity_check_complete).with(
-        stream_name,
-        bucket_name,
-        object_path,
-        checksum_algorithm_name,
-        checksum_hexdigest,
-        object_size
-      )
-      aws_check_fixity_job.perform(job_identifier, bucket_name, object_path, checksum_algorithm_name)
+    context 'a successful run' do
+      before do
+        allow(CheckPlease::Aws::ObjectFixityChecker).to receive(:check).with(
+          bucket_name,
+          object_path,
+          checksum_algorithm_name,
+          on_chunk: Proc
+        ).and_return([checksum_hexdigest, object_size])
+      end
+
+      it 'broadcasts a fixity check complete message' do
+        expect(aws_check_fixity_job).to receive(:broadcast_fixity_check_complete).with(
+          stream_name,
+          bucket_name,
+          object_path,
+          checksum_algorithm_name,
+          checksum_hexdigest,
+          object_size
+        )
+        aws_check_fixity_job.perform(fixity_check.id)
+      end
+
+      it 'saves the FixityCheck result in the database' do
+        aws_check_fixity_job.perform(fixity_check.id)
+        FixityCheck.first.tap do |fixity_check|
+          expect(fixity_check.checksum_hexdigest).to eq(checksum_hexdigest)
+          expect(fixity_check.object_size).to eq(object_size)
+        end
+      end
     end
 
     it 'broadcasts a fixity check error message when an error occurs during processing' do
@@ -45,7 +67,7 @@ describe AwsCheckFixityJob do
         object_path,
         checksum_algorithm_name
       )
-      aws_check_fixity_job.perform(job_identifier, bucket_name, object_path, checksum_algorithm_name)
+      aws_check_fixity_job.perform(fixity_check.id)
     end
   end
 
@@ -53,8 +75,9 @@ describe AwsCheckFixityJob do
     let(:chunk) { 'a chunk of content' }
     let(:bytes_read) { 12_345 }
 
-    it 'broadcasts an Action Cable message at the expected interval' do
-      progress_report_lambda = aws_check_fixity_job.progress_report_lambda(stream_name)
+    it 'broadcasts an Action Cable message at the expected interval, and touches the FixityCheck record' do
+      progress_report_lambda = aws_check_fixity_job.progress_report_lambda(fixity_check, stream_name)
+      expect(fixity_check).to receive(:touch).exactly(10).times
       expect(ActionCable.server).to receive(:broadcast).exactly(10).times
       (1..1000).each do |i|
         progress_report_lambda.call(chunk, bytes_read, i)

@@ -13,15 +13,40 @@ class FixityChecksController < ApiController
       bucket_name, object_path, checksum_algorithm_name
     )
 
-    render plain: {
+    render json: {
       bucket_name: bucket_name, object_path: object_path, checksum_algorithm_name: checksum_algorithm_name,
       checksum_hexdigest: checksum_hexdigest, object_size: object_size
-    }.to_json
+    }
   rescue StandardError => e
-    render plain: {
+    render json: {
       error_message: e.message,
       bucket_name: bucket_name, object_path: object_path, checksum_algorithm_name: checksum_algorithm_name
-    }.to_json, status: :bad_request
+    }, status: :bad_request
+  end
+
+  def create
+    bucket_name = fixity_check_params['bucket_name']
+    object_path = fixity_check_params['object_path']
+    checksum_algorithm_name = fixity_check_params['checksum_algorithm_name']
+    fixity_check = FixityCheck.create!(
+      # User does not need to supply a job_identifier param when using the create endpoint.
+      # We'll just use a ranom UUID here.
+      job_identifier: SecureRandom.uuid,
+      bucket_name: bucket_name,
+      object_path: object_path,
+      checksum_algorithm_name: checksum_algorithm_name
+    )
+    AwsCheckFixityJob.perform_later(fixity_check.id)
+    render json: fixity_check
+  rescue StandardError => e
+    render json: {
+      error_message: e.message
+    }, status: :bad_request
+  end
+
+  # GET /fixity_checks/1
+  def show
+    render json: FixityCheck.find(params[:id])
   end
 
   private

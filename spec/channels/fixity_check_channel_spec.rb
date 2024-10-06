@@ -37,6 +37,15 @@ RSpec.describe FixityCheckChannel, type: :channel do
       let(:file_content) { 'A' * 1024 }
       let(:checksum_hexdigest) { Digest::SHA256.hexdigest(file_content) }
       let(:object_size) { file_content.bytesize }
+      let(:fixity_check) do
+        FactoryBot.create(
+          :fixity_check,
+          job_identifier: job_identifier,
+          bucket_name: bucket_name,
+          object_path: object_path,
+          checksum_algorithm_name: checksum_algorithm_name
+        )
+      end
 
       before do
         allow(CheckPlease::Aws::ObjectFixityChecker).to receive(:check).with(
@@ -50,7 +59,7 @@ RSpec.describe FixityCheckChannel, type: :channel do
       it  'initiates a checksum calculation, which queues a background job and '\
           'responds with a fixity_check_complete broadcast' do
         expect(AwsCheckFixityJob).to receive(:perform_later).with(
-          job_identifier, bucket_name, object_path, checksum_algorithm_name
+          FixityCheck.count + 1
         ).and_call_original
 
         expect {

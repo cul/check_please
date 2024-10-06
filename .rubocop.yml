@@ -20,10 +20,15 @@ AllCops:
 Lint/MissingCopEnableDirective:
   Enabled: false
 
+Metrics/AbcSize:
+  Exclude:
+    - app/jobs/aws_check_fixity_job.rb
+
 Metrics/MethodLength:
   Exclude:
     - lib/check_please/aws/object_fixity_checker.rb
     - app/controllers/fixity_checks_controller.rb
+    - app/jobs/aws_check_fixity_job.rb
 
 RSpec/VerifiedDoubles:
   Exclude:
