@@ -73,8 +73,8 @@ class AwsCheckFixityJob < ApplicationJob
 
   def progress_report_lambda(fixity_check, response_stream_name)
     lambda do |_chunk, _bytes_read, chunk_counter|
-      # Only provide an update once per 100 chunks processed
-      return unless (chunk_counter % 100).zero?
+      # Only provide an update once per 1000 chunks processed
+      return unless (chunk_counter % 1000).zero?
 
       # Update the updated_at attribute for this FixityCheck record
       fixity_check.touch # rubocop:disable Rails/SkipsModelValidations
