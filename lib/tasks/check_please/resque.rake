@@ -93,8 +93,8 @@ namespace :resque do
 
     ops = {
       pgroup: true,
-      err: [Rails.root.join('log/resque_stderr').to_s, 'a'],
-      out: [Rails.root.join('log/resque_stdout').to_s, 'a']
+      err: [Rails.root.join('log/resque_stderr.log').to_s, 'a'],
+      out: [Rails.root.join('log/resque_stdout.log').to_s, 'a']
     }
 
     pids = []
